@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// 每日更新 public/data/stars.json：
-//   1. 拉取仓库所有者的 GitHub star 列表（GITHUB_TOKEN）
-//   2. 分块调用 AI 分类 + 生成中英双语一句话简介
-//   3. 合并写入数据文件（失败时保留旧数据，以非零码退出）
+// 增量更新 public/data/stars.json：
+//   1. 拉取仓库所有者的全部 GitHub star（GITHUB_TOKEN 仅用于提升速率限额）
+//   2. 对比上次数据（PREV_FILE）：已有仓库复用 AI 摘要、仅刷新元数据；
+//      仅对【新增】star 调用 AI 分类 + 生成中英双语一句话简介（归入已有类别）
+//   3. 合并写回（失败时保留旧数据，非零码退出）
 // 零依赖，Node 18+（原生 fetch）。
 
 import fs from 'node:fs'
@@ -13,6 +14,8 @@ const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || ''
 // GitHub 用户名：--owner 优先，其次 OWNER 环境变量（工作流中传 github.repository_owner）
 // 注：用公开端点 /users/{owner}/starred 而非 /user/starred——仓库级 GITHUB_TOKEN 无 user 权限，后者会 403
 const OWNER = arg('--owner') || process.env.OWNER || ''
+const AI_MODEL = process.env.AI_MODEL || 'deepseek-v4-flash'
+const PREV_FILE = process.env.PREV_FILE || arg('--prev') || ''
 const MAX_REPOS = 3000
 const CHUNK = 60
 const OUT = path.join(process.cwd(), 'public', 'data', 'stars.json')
@@ -40,18 +43,22 @@ async function gh(url) {
   return r.json()
 }
 
-async function classify(chunk) {
+// chunk 为新增仓库列表；existingCats 为当前类别（AI 应优先复用）
+async function classify(chunk, existingCats) {
+  const catList = existingCats.map((c) => ({ nameZh: c.nameZh, nameEn: c.nameEn }))
   const body = {
-    model: 'deepseek-chat',
+    model: AI_MODEL,
     temperature: 0.2,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
         content:
-          '你是 GitHub 项目分类助手。把给定仓库列表按用途分类，并为每个仓库写一句中文简介（≤60字）和一句英文简介（≤15词）。类别名中英双语。' +
-          '只输出 JSON：{"categories":[{"nameZh":"类别中文名","nameEn":"类别英文名","repos":[{"fullName":"owner/name","summaryZh":"…","summaryEn":"…"}]}]}。' +
-          '类别不超过 8 个，同类仓库必须合并；每个仓库都必须出现在结果中。',
+          '你是 GitHub 项目分类助手。为给定仓库分类并写中英双语一句话简介。' +
+          `已有类别（优先把仓库归入这些类别，类别名保持原样）：${JSON.stringify(catList)}` +
+          '。确实不适合任何已有类别时才新建类别（最多 2 个，需中英双语名）。' +
+          '每个仓库写一句中文简介（≤60字）和一句英文简介（≤15词）。' +
+          '只输出 JSON：{"categories":[{"nameZh":"类别中文名","nameEn":"类别英文名","repos":[{"fullName":"owner/name","summaryZh":"…","summaryEn":"…"}]}]}。每个仓库都必须出现。',
       },
       {
         role: 'user',
@@ -94,12 +101,29 @@ async function classify(chunk) {
 async function main() {
   if (!DEEPSEEK_KEY) throw new Error('缺少环境变量 DEEPSEEK_API_KEY')
   if (!OWNER) throw new Error('缺少 GitHub 用户名：传 --owner=<用户名> 或设置 OWNER 环境变量')
-  const who = `/users/${encodeURIComponent(OWNER)}/starred`
+
+  // 上次数据（增量基线）；不存在或解析失败 → 首次运行，全量分类
+  let prev = null
+  if (PREV_FILE && fs.existsSync(PREV_FILE)) {
+    try {
+      prev = JSON.parse(fs.readFileSync(PREV_FILE, 'utf8'))
+      if (!Array.isArray(prev.categories)) throw new Error('categories 缺失')
+    } catch (e) {
+      console.warn(`PREV_FILE 解析失败（${e.message}），按首次运行全量处理`)
+      prev = null
+    }
+  }
+  const prevRepo = new Map() // fullName -> {cat, summaryZh, summaryEn}
+  for (const c of prev?.categories ?? []) {
+    for (const r of c.repos) {
+      if (r?.fullName) prevRepo.set(r.fullName, { cat: c.nameZh, summaryZh: r.summaryZh, summaryEn: r.summaryEn })
+    }
+  }
 
   console.log('拉取 star 列表…')
   const repos = []
   for (let page = 1; ; page++) {
-    const batch = await gh(`https://api.github.com${who}?per_page=100&page=${page}`)
+    const batch = await gh(`https://api.github.com/users/${encodeURIComponent(OWNER)}/starred?per_page=100&page=${page}`)
     if (!batch.length) break
     for (const s of batch) repos.push(s.repo)
     if (repos.length >= MAX_REPOS) {
@@ -118,47 +142,65 @@ async function main() {
     avatarUrl: repo.owner?.avatar_url ?? '',
     updatedAt: repo.pushed_at ?? '',
   }))
-  console.log(`共 ${recs.length} 个 star，开始分类…`)
 
-  // ponytail: 按 nameZh 精确合并跨块类别；若分类碎片化，改为先汇总再统一分类
-  const catMap = new Map()
-  let aiCount = 0
-  for (let i = 0; i < recs.length; i += CHUNK) {
-    const out = await classify(recs.slice(i, i + CHUNK))
-    for (const c of out.categories) {
-      let slot = catMap.get(c.nameZh)
+  const newRecs = recs.filter((r) => !prevRepo.has(r.fullName))
+  console.log(`共 ${recs.length} 个 star：新增 ${newRecs.length} 个需 AI 处理，${recs.length - newRecs.length} 个复用已有摘要（仅刷新元数据）`)
+
+  // 新增仓库 → AI（按批，附已有类别列表）
+  const existingCats = (prev?.categories ?? []).map((c) => ({ nameZh: c.nameZh, nameEn: c.nameEn }))
+  const newByCat = new Map() // nameZh -> {nameZh, nameEn, repos:[]}
+  for (let i = 0; i < newRecs.length; i += CHUNK) {
+    const out = await classify(newRecs.slice(i, i + CHUNK), existingCats)
+    for (const c of out.categories ?? []) {
+      let slot = newByCat.get(c.nameZh)
       if (!slot) {
         slot = { nameZh: c.nameZh, nameEn: c.nameEn, repos: [] }
-        catMap.set(c.nameZh, slot)
+        newByCat.set(c.nameZh, slot)
       }
-      for (const r of c.repos) {
-        const rec = recs.find((x) => x.fullName === r.fullName)
+      for (const r of c.repos ?? []) {
+        const rec = newRecs.find((x) => x.fullName === r.fullName)
         if (rec && r.summaryZh && r.summaryEn) {
           slot.repos.push({ ...rec, summaryZh: r.summaryZh, summaryEn: r.summaryEn })
-          aiCount++
         }
       }
     }
-    console.log(`  已处理 ${Math.min(i + CHUNK, recs.length)}/${recs.length}`)
+    console.log(`  AI 已处理 ${Math.min(i + CHUNK, newRecs.length)}/${newRecs.length} 个新增仓库`)
   }
-  const missing = recs.length - aiCount
-  if (missing > 0) console.warn(`${missing} 个仓库缺少 AI 摘要（将被跳过）`)
 
-  const categories = [...catMap.values()]
-    .map((c) => ({ ...c, repos: c.repos.sort((a, b) => b.stars - a.stars) }))
-    .sort((a, b) => b.repos.length - a.repos.length)
-  if (!categories.length) throw new Error('分类结果为空')
+  // 组装：已有类别保持原顺序（刷新元数据、剔除已取消 star 的仓库）
+  const cats = []
+  for (const pc of prev?.categories ?? []) {
+    const repos = pc.repos
+      .map((pr) => {
+        const rec = recs.find((r) => r.fullName === pr.fullName)
+        return rec ? { ...rec, summaryZh: pr.summaryZh, summaryEn: pr.summaryEn } : null
+      })
+      .filter(Boolean)
+    if (repos.length) cats.push({ nameZh: pc.nameZh, nameEn: pc.nameEn, repos })
+  }
+  // 新增类别（AI 新建）追加；与已有类别重名则并入
+  for (const c of newByCat.values()) {
+    if (!c.repos.length) continue
+    const exist = cats.find((x) => x.nameZh === c.nameZh)
+    if (exist) exist.repos.push(...c.repos)
+    else cats.push(c)
+  }
+
+  for (const c of cats) c.repos.sort((a, b) => b.stars - a.stars)
+  const missing = newRecs.length - [...newByCat.values()].reduce((n, c) => n + c.repos.length, 0)
+  if (missing > 0) console.warn(`${missing} 个新增仓库缺少 AI 摘要（将被跳过）`)
+  if (!cats.length) throw new Error('分类结果为空')
 
   const data = {
     generatedAt: new Date().toISOString(),
     total: recs.length,
-    categories,
+    categories: cats,
   }
   fs.mkdirSync(path.dirname(OUT), { recursive: true })
   const tmp = OUT + '.tmp'
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n')
   fs.renameSync(tmp, OUT)
-  console.log(`已写入 ${OUT}：${recs.length} 个仓库 / ${categories.length} 个分类`)
+  console.log(`已写入 ${OUT}：${recs.length} 个仓库 / ${cats.length} 个分类（AI 调用 ${Math.ceil(newRecs.length / CHUNK)} 批）`)
 }
 
 main().catch((e) => {

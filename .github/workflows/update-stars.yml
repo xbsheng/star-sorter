@@ -19,11 +19,19 @@ jobs:
           node-version: 22
 
       - name: Generate data (GitHub API + AI)
-        run: node .github/scripts/update-stars.mjs
+        run: |
+          rm -f /tmp/prev-stars.json
+          git fetch origin output:output 2>/dev/null || true
+          if git rev-parse --verify refs/heads/output >/dev/null 2>&1; then
+            git show output:data/stars.json > /tmp/prev-stars.json 2>/dev/null && echo "上次数据已加载（增量基线）" || echo "output 分支无历史数据"
+          fi
+          node .github/scripts/update-stars.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           OWNER: ${{ github.repository_owner }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          PREV_FILE: /tmp/prev-stars.json
 
       - uses: pnpm/action-setup@v4
 
