@@ -23,6 +23,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OWNER: ${{ github.repository_owner }}
 
       - uses: pnpm/action-setup@v4
 

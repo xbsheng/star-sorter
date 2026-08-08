@@ -10,7 +10,9 @@ import path from 'node:path'
 
 const TOKEN = process.env.GITHUB_TOKEN || ''
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || ''
-const OWNER = arg('--owner') // 可选：本地调试指定用户名
+// GitHub 用户名：--owner 优先，其次 OWNER 环境变量（工作流中传 github.repository_owner）
+// 注：用公开端点 /users/{owner}/starred 而非 /user/starred——仓库级 GITHUB_TOKEN 无 user 权限，后者会 403
+const OWNER = arg('--owner') || process.env.OWNER || ''
 const MAX_REPOS = 3000
 const CHUNK = 60
 const OUT = path.join(process.cwd(), 'public', 'data', 'stars.json')
@@ -21,15 +23,20 @@ function arg(name) {
 }
 
 async function gh(url) {
-  const r = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-      Accept: 'application/vnd.github.star+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'star-sorter',
-    },
-  })
-  if (!r.ok) throw new Error(`GitHub API ${r.status}: ${url}`)
+  const headers = {
+    Accept: 'application/vnd.github.star+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'star-sorter',
+  }
+  if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`
+  const r = await fetch(url, { headers })
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 300)
+    if (r.status === 404 && url.includes('/users/')) {
+      throw new Error(`用户 ${OWNER} 不存在，或开启了「私有 star」（Settings → Profile → Private stars）`)
+    }
+    throw new Error(`GitHub API ${r.status}: ${url} — ${body}`)
+  }
   return r.json()
 }
 
@@ -86,7 +93,8 @@ async function classify(chunk) {
 
 async function main() {
   if (!DEEPSEEK_KEY) throw new Error('缺少环境变量 DEEPSEEK_API_KEY')
-  const who = OWNER ? `/users/${encodeURIComponent(OWNER)}/starred` : '/user/starred'
+  if (!OWNER) throw new Error('缺少 GitHub 用户名：传 --owner=<用户名> 或设置 OWNER 环境变量')
+  const who = `/users/${encodeURIComponent(OWNER)}/starred`
 
   console.log('拉取 star 列表…')
   const repos = []
