@@ -113,7 +113,7 @@ System sans stack (ui-sans-serif → PingFang SC / Hiragino / Microsoft YaHei fo
 - Max content width 1152px, px-4 on mobile / px-6 on desktop.
 - Sticky header (h-14, white 85% + backdrop-blur) with brand mark left, GitHub link and language toggle right.
 - Hero band: dark ink section, pt-14→20 / pb-12→16, headline + subline + one inline fact line (count · updated · AI note). No metric cards, no numbers grid.
-- Filter area: desktop uses a sticky left sidebar (w-52, under the header) with the vertical category list; the right column carries the search field and sort toggle above the grid. On mobile the sidebar hides and categories become a horizontally scrollable chip row below the search.
+- The page scrolls normally (right column flows with the page). On desktop, a sticky sidebar (w-52, `top-14`, `max-h-[calc(100vh-3.5rem)]`, `overflow-y-auto`, `overscroll-contain`) keeps the category list reachable while browsing; the search/sort bar is sticky at the same offset with a blurred paper background and bottom hairline. On mobile the sidebar hides and categories become a horizontally scrollable chip row inside the sticky search bar.
 - Grid: 1 col mobile → 2 @sm → 3 @xl, gap 16px. Cards equal height via flex column.
 - Footer: centered two-line note on white, hairline top border.
 

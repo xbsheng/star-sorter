@@ -71,8 +71,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <header className="sticky top-0 z-20 flex h-14 items-center border-b border-neutral-200 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <a href="#top" className="flex items-center gap-2 text-sm font-semibold">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-neutral-950 text-white">
               <StarIcon className="h-3.5 w-3.5" />
@@ -135,10 +135,10 @@ export default function App() {
         </div>
       </section>
 
-      <main id="top" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <div className="flex flex-col gap-8 pt-8 md:flex-row md:items-start">
-          {/* 桌面端：左侧垂直分类列表（sticky） */}
-          <aside className="hidden w-52 shrink-0 md:sticky md:top-14 md:block">
+      <main id="top" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col gap-8 pt-8 md:flex-row md:items-start md:gap-8">
+          {/* 桌面端：左侧垂直分类列表（吸顶 + 内部滚动） */}
+          <aside className="hidden w-52 shrink-0 md:sticky md:top-14 md:block md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto md:overscroll-contain">
             <nav aria-label="Categories" className="flex flex-col gap-1">
               <SidebarChip
                 active={activeCat === 'all'}
@@ -165,7 +165,7 @@ export default function App() {
             </nav>
           </aside>
 
-          {/* 右侧：搜索/排序（sticky）+ 卡片列表 */}
+          {/* 右侧：搜索/排序（吸顶）+ 卡片列表（随页面滚动） */}
           <div className="min-w-0 flex-1">
             <div className="sticky top-14 z-10 border-b border-neutral-200 bg-neutral-50/90 py-3 backdrop-blur-md">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
