@@ -165,10 +165,11 @@ export default function App() {
             </nav>
           </aside>
 
-          {/* 右侧：搜索/排序 + 卡片列表 */}
+          {/* 右侧：搜索/排序（sticky）+ 卡片列表 */}
           <div className="min-w-0 flex-1">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label className="relative flex-1 sm:max-w-sm">
+            <div className="sticky top-14 z-10 border-b border-neutral-200 bg-neutral-50/90 py-3 backdrop-blur-md">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <label className="relative flex-1 sm:max-w-sm">
                 <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                 <input
                   type="search"
@@ -234,6 +235,7 @@ export default function App() {
                 </div>
               )}
             </nav>
+            </div>
 
             {error ? (
               <EmptyState
