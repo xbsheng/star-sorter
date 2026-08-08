@@ -4,8 +4,23 @@ import { dict, formatDate, type Lang } from './i18n'
 import RepoCard from './components/RepoCard'
 import { GitHubIcon, GlobeIcon, SearchIcon, StarIcon } from './icons'
 
-const DATA_URL = './data/stars.json'
+// 运行时从 output 分支直接获取数据（raw.githubusercontent 允许跨域），数据更新即时生效，无需重新部署
+// 仓库改名或换所有者时同步修改此 URL
+const DATA_URL = 'https://raw.githubusercontent.com/xbsheng/star-sorter/output/stars.json'
+const FALLBACK_URL = './data/stars.json' // 本地开发示例数据 / 远端不可用时的降级
 const LANG_KEY = 'star-sorter-lang'
+
+async function loadData(): Promise<StarData> {
+  for (const url of [DATA_URL, FALLBACK_URL]) {
+    try {
+      const r = await fetch(url)
+      if (r.ok) return (await r.json()) as StarData
+    } catch {
+      /* 尝试下一个数据源 */
+    }
+  }
+  throw new Error('数据加载失败')
+}
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => {
@@ -24,12 +39,8 @@ export default function App() {
   }, [lang])
 
   useEffect(() => {
-    fetch(DATA_URL)
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status))
-        return r.json()
-      })
-      .then((j: StarData) => setData(j))
+    loadData()
+      .then(setData)
       .catch(() => setError(true))
   }, [])
 
@@ -184,9 +195,8 @@ export default function App() {
             onRetry={() => {
               setError(false)
               setData(null)
-              fetch(DATA_URL)
-                .then((r) => (r.ok ? r.json() : Promise.reject()))
-                .then((j: StarData) => setData(j))
+              loadData()
+                .then(setData)
                 .catch(() => setError(true))
             }}
             retryLabel={t.retry}

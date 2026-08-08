@@ -1,12 +1,10 @@
 name: Deploy to GitHub Pages
 
+# 数据更新不触发部署：页面运行时直接从 output 分支的 stars.json 读取
 on:
   push:
     branches: [main]
-  # GITHUB_TOKEN 推送 output 分支不会触发 push 事件，数据更新后需显式触发重建
-  workflow_run:
-    workflows: ['Update stars']
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,7 +18,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
 
@@ -29,21 +26,6 @@ jobs:
           node-version: 22
 
       - uses: pnpm/action-setup@v4
-
-      # 构建前从 output 分支注入最新数据；output 分支不存在时用内置示例数据
-      - name: Inject star data
-        run: |
-          git fetch origin output:output 2>/dev/null || true
-          if git rev-parse --verify refs/heads/output >/dev/null 2>&1; then
-            if git show output:stars.json > public/data/stars.json 2>/dev/null \
-               || git show output:data/stars.json > public/data/stars.json 2>/dev/null; then
-              echo "数据已注入（output 分支）"
-            else
-              echo "output 分支无数据文件，使用示例数据"
-            fi
-          else
-            echo "output 分支不存在，使用示例数据"
-          fi
 
       - run: pnpm install --frozen-lockfile
 
