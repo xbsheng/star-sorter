@@ -155,7 +155,7 @@ export default function App() {
       <main id="top" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col gap-8 pt-8 md:flex-row md:items-start md:gap-8">
           {/* 桌面端：左侧垂直分类列表（吸顶 + 内部滚动） */}
-          <aside className="hidden w-52 shrink-0 md:sticky md:top-14 md:block md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto md:overscroll-contain">
+          <aside className="sidebar-scroll hidden w-52 shrink-0 md:sticky md:top-14 md:block md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto md:overscroll-contain md:pr-1.5 md:pb-4">
             <nav aria-label="Categories" className="flex flex-col gap-1">
               <SidebarChip
                 active={activeCat === 'all'}
