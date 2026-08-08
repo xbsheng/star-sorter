@@ -1,0 +1,63 @@
+{
+  "title": "Choose the visual world",
+  "question": "Roll assigned Field Guide (野外图鉴). Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "野外图鉴 Field Guide",
+      "kicker": "THE ROLL",
+      "lineage": "野外观察手册，手绘标本图版，动物志检索表",
+      "thesis": "你的 star 收藏是一本物种图鉴：每颗星是一份标本，AI 是撰写图版注解的博物学家。",
+      "palette": ["#f3ead8", "#2b2620", "#3f6b4f", "#c1503c", "#9fb6c4"],
+      "materials": ["牛皮纸图版", "水彩标本", "手写批注", "标本标签"],
+      "viewport": "首屏是展开的图鉴跨页：左侧按科列出的分类索引（手绘小图标），右侧一张带手写批注的标本图版卡；顶部细横幅标注最近观察时间。",
+      "risk": "手绘质感不足会滑向廉价手账风；图版密度过高会牺牲检索效率。",
+      "sketch": ".impeccable/sketches/assigned.webp"
+    },
+    {
+      "id": "challenger-datamatics",
+      "label": "数据场 Data Field",
+      "lineage": "池田亮司 datamatics，条形码视觉，数据密度美学",
+      "thesis": "star 列表是一条待扫描的条形码墙：密集的纯黑白数据就是它的美。",
+      "palette": ["#000000", "#ffffff"],
+      "materials": ["纯黑白", "hairline 条形码", "等宽数字列", "正弦网格"],
+      "case": "融合干净：repo=条形码列，分类=频段，选中某列拉出数字聚焦；纯黑白无灰阶，信息密度极高，冷硬是风格而非缺陷。",
+      "sketch": ".impeccable/sketches/challenger-datamatics.webp",
+      "hero": "https://impeccable.style/worlds/cards/ikeda-datamatics-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/ikeda-datamatics.webp"
+    },
+    {
+      "id": "challenger-swiss",
+      "label": "瑞士网格墙 Swiss Grid Wall",
+      "lineage": "国际主义平面设计，音乐会海报墙",
+      "thesis": "一堵海报墙：一个模块网格统治整面墙，每张海报的几何图形记录一颗星。",
+      "palette": ["#f5f1e8", "#111111", "#d7263d", "#1f4e8c"],
+      "materials": ["未印刷海报白", "Akzidenz 黑体", "几何弧线与条形", "网格对齐"],
+      "case": "融合干净：分类=海报系列，筛选实时重排模块；几何图形是唯一图像，克制、客观、可无限扩展。",
+      "sketch": ".impeccable/sketches/challenger-swiss.webp",
+      "hero": "https://impeccable.style/worlds/cards/design-canon-swiss-grid-poster-wall-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/design-canon-swiss-grid-poster-wall.webp"
+    },
+    {
+      "id": "challenger-zine",
+      "label": "手绘技术 zine Hand-Drawn Zine",
+      "lineage": "朋友在餐巾纸上讲技术，漫画分镜，荧光笔划重点",
+      "thesis": "像朋友手绘讲解代码一样，用箭头和荧光笔标注带你认识每个项目。",
+      "palette": ["#fbf6e9", "#1a1a1a", "#ffd23f", "#ff6b9d", "#2ec4b6"],
+      "materials": ["奶油纸底", "马克笔字", "手绘箭头", "荧光高亮"],
+      "case": "融合干净：每颗星=漫画分镜一页，高亮划过 AI 一句话总结；亲和力最强，但手绘密度撑不起大列表，检索效率偏弱。",
+      "sketch": ".impeccable/sketches/challenger-zine.webp",
+      "hero": "https://impeccable.style/worlds/cards/hand-drawn-zine-explainer-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/hand-drawn-zine-explainer.webp"
+    }
+  ],
+  "reroll": true,
+  "canon": true,
+  "canonCard": {
+    "label": "分类卡片网格（常见做法）",
+    "thesis": "这个品类惯常的样子：顶栏 + 分类标签 + 圆角卡片网格 + star/语言徽章，执行到一流即可。",
+    "viewport": "导航栏、分类 chip、响应式卡片网格、每卡显示 star 数与语言徽章。",
+    "sketch": ".impeccable/sketches/canon.webp"
+  },
+  "steer": true
+}

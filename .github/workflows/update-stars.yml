@@ -1,0 +1,37 @@
+name: Update stars
+
+on:
+  schedule:
+    - cron: '0 21 * * *' # 北京时间 05:00 = UTC 21:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run update script
+        run: node .github/scripts/update-stars.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
+      - name: Commit data
+        run: |
+          if git diff --quiet -- public/data/stars.json; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/stars.json
+          git commit -m "chore: update star data ($(date -u +%Y-%m-%d))"
+          git push

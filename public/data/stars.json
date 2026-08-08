@@ -1,0 +1,223 @@
+{
+  "generatedAt": "2025-08-09T05:00:00+08:00",
+  "total": 18,
+  "synthetic": true,
+  "categories": [
+    {
+      "nameZh": "前端框架",
+      "nameEn": "Frontend",
+      "repos": [
+        {
+          "fullName": "facebook/react",
+          "description": "The library for web and native user interfaces.",
+          "language": "JavaScript",
+          "stars": 230000,
+          "topics": ["react", "ui", "javascript"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/69631?v=4",
+          "summaryZh": "用于构建 Web 和原生用户界面的库，生态最庞大的前端框架。",
+          "summaryEn": "The library for web and native user interfaces, with the largest frontend ecosystem.",
+          "updatedAt": "2025-08-05T10:00:00Z"
+        },
+        {
+          "fullName": "vuejs/core",
+          "description": "🖖 Vue.js is a progressive, incrementally-adoptable JavaScript framework for building UI on the web.",
+          "language": "TypeScript",
+          "stars": 47000,
+          "topics": ["vue", "framework", "javascript"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/6128107?v=4",
+          "summaryZh": "渐进式 Web UI 框架，上手简单，组合式 API 深受欢迎。",
+          "summaryEn": "A progressive JavaScript framework for building UIs on the web.",
+          "updatedAt": "2025-08-01T08:30:00Z"
+        },
+        {
+          "fullName": "sveltejs/svelte",
+          "description": "Cytoscape.js: a graph theory library for visualisation and analysis",
+          "language": "TypeScript",
+          "stars": 81000,
+          "topics": ["svelte", "compiler", "ui"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/23617963?v=4",
+          "summaryZh": "编译时框架，把组件编译成高效原生 JS，无虚拟 DOM 包袱。",
+          "summaryEn": "A compiler-driven framework that ships minimal, dependency-free JS.",
+          "updatedAt": "2025-07-28T03:15:00Z"
+        }
+      ]
+    },
+    {
+      "nameZh": "AI 与大模型",
+      "nameEn": "AI & LLM",
+      "repos": [
+        {
+          "fullName": "deepseek-ai/DeepSeek-V3",
+          "description": "DeepSeek-V3: A powerful open-source MoE model, achieving performance comparable to leading closed-source models.",
+          "language": "Python",
+          "stars": 89000,
+          "topics": ["llm", "moE", "deepseek", "ai"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/148330874?v=4",
+          "summaryZh": "开源 MoE 大模型，性能对标头部闭源模型，推理成本极低。",
+          "summaryEn": "Open-source MoE LLM rivaling leading closed models at low inference cost.",
+          "updatedAt": "2025-08-03T12:00:00Z"
+        },
+        {
+          "fullName": "ollama/ollama",
+          "description": "Get up and running with Llama 3.3, DeepSeek-R1, Phi-4, Gemma 3, Mistral Small 3.1 and other large language models.",
+          "language": "Go",
+          "stars": 130000,
+          "topics": ["llm", "llama", "local", "ai"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/119995564?v=4",
+          "summaryZh": "一行命令在本地跑大模型，支持 Llama、DeepSeek 等主流模型。",
+          "summaryEn": "Run large language models locally with a single command.",
+          "updatedAt": "2025-08-06T09:00:00Z"
+        },
+        {
+          "fullName": "langchain-ai/langchain",
+          "description": "🦜🔗 Build context-aware reasoning applications",
+          "stars": 99000,
+          "topics": ["llm", "agents", "framework", "ai"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/126733545?v=4",
+          "summaryZh": "构建 LLM 应用的事实标准框架，链式编排与智能体生态完善。",
+          "summaryEn": "The standard framework for building LLM-powered applications.",
+          "updatedAt": "2025-07-30T14:20:00Z"
+        },
+        {
+          "fullName": "ggerganov/llama.cpp",
+          "description": "LLM inference in C/C++",
+          "language": "C++",
+          "stars": 72000,
+          "topics": ["llm", "inference", "cpp"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/28851536?v=4",
+          "summaryZh": "纯 C/C++ 的 LLM 推理引擎，CPU 也能流畅跑大模型。",
+          "summaryEn": "LLM inference in plain C/C++, optimized for CPU.",
+          "updatedAt": "2025-08-04T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "nameZh": "开发者工具",
+      "nameEn": "Developer Tools",
+      "repos": [
+        {
+          "fullName": "vitest-dev/vitest",
+          "description": "Next generation testing framework powered by Vite.",
+          "language": "TypeScript",
+          "stars": 13000,
+          "topics": ["testing", "vite", "unit-testing"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/95404154?v=4",
+          "summaryZh": "基于 Vite 的下一代测试框架，极速启动，原生 ESM。",
+          "summaryEn": "A blazing-fast Vite-native testing framework.",
+          "updatedAt": "2025-08-02T05:45:00Z"
+        },
+        {
+          "fullName": "denoland/deno",
+          "description": "A modern runtime for JavaScript and TypeScript.",
+          "language": "Rust",
+          "stars": 100000,
+          "topics": ["deno", "runtime", "typescript"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/42048915?v=4",
+          "summaryZh": "内置 TypeScript 的现代 JS 运行时，安全默认、开箱即用。",
+          "summaryEn": "A modern, secure runtime for JavaScript and TypeScript.",
+          "updatedAt": "2025-07-31T11:10:00Z"
+        },
+        {
+          "fullName": "google/zx",
+          "description": "A tool for writing better scripts",
+          "language": "JavaScript",
+          "stars": 43000,
+          "topics": ["cli", "shell", "scripting"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/1342004?v=4",
+          "summaryZh": "用 JS/TS 写 shell 脚本的利器，async 原生支持。",
+          "summaryEn": "Write shell scripts in JavaScript with async support.",
+          "updatedAt": "2025-07-25T02:00:00Z"
+        },
+        {
+          "fullName": "Biomejs/biome",
+          "description": "A toolchain for web projects, aimed to provide functionalities to maintain them. Biome offers formatter and linter, usable via CLI and LSP.",
+          "language": "Rust",
+          "stars": 17000,
+          "topics": ["linter", "formatter", "rust"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/137262365?v=4",
+          "summaryZh": "Rust 编写的极速前端工具链，格式化 + lint 一站式。",
+          "summaryEn": "A fast Rust-based toolchain combining formatter and linter.",
+          "updatedAt": "2025-08-07T07:30:00Z"
+        }
+      ]
+    },
+    {
+      "nameZh": "数据与存储",
+      "nameEn": "Data & Storage",
+      "repos": [
+        {
+          "fullName": "redis/redis",
+          "description": "Redis is an in-memory database that persists on disk.",
+          "language": "C",
+          "stars": 68000,
+          "topics": ["redis", "database", "cache"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/1529926?v=4",
+          "summaryZh": "内存数据结构存储，缓存与队列场景的事实标准。",
+          "summaryEn": "An in-memory data structure store used as cache and queue.",
+          "updatedAt": "2025-08-05T13:00:00Z"
+        },
+        {
+          "fullName": "WiseLibs/better-sqlite3",
+          "description": "The fastest and simplest library for SQLite3 in Node.js.",
+          "language": "JavaScript",
+          "stars": 5000,
+          "topics": ["sqlite", "nodejs", "database"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/3879167?v=4",
+          "summaryZh": "Node.js 上最快最简单的 SQLite 绑定，同步 API 性能惊人。",
+          "summaryEn": "The fastest, simplest SQLite3 library for Node.js.",
+          "updatedAt": "2025-07-22T09:00:00Z"
+        },
+        {
+          "fullName": "ClickHouse/ClickHouse",
+          "description": "ClickHouse® is a real-time analytics DBMS",
+          "language": "C++",
+          "stars": 39000,
+          "topics": ["database", "analytics", "olap"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/54801242?v=4",
+          "summaryZh": "实时分析型数据库，列式存储，海量数据秒级聚合。",
+          "summaryEn": "A real-time analytics database with columnar storage.",
+          "updatedAt": "2025-08-03T18:00:00Z"
+        }
+      ]
+    },
+    {
+      "nameZh": "设计与 UI",
+      "nameEn": "Design & UI",
+      "repos": [
+        {
+          "fullName": "tailwindlabs/tailwindcss",
+          "description": "A utility-first CSS framework for rapidly building custom user interfaces.",
+          "language": "TypeScript",
+          "stars": 85000,
+          "topics": ["css", "tailwindcss", "design-system"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/67109815?v=4",
+          "summaryZh": "原子化 CSS 框架，快速构建自定义界面，v4 全面提速。",
+          "summaryEn": "A utility-first CSS framework for rapid UI building.",
+          "updatedAt": "2025-08-06T15:00:00Z"
+        },
+        {
+          "fullName": "shadcn-ui/ui",
+          "description": "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",
+          "language": "TypeScript",
+          "stars": 80000,
+          "topics": ["react", "components", "design-system"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/139895814?v=4",
+          "summaryZh": "可复制粘贴的 React 组件库，无障碍、可定制、源码即文档。",
+          "summaryEn": "Copy-paste React components that are accessible and customizable.",
+          "updatedAt": "2025-08-04T10:30:00Z"
+        },
+        {
+          "fullName": "sindresorhus/awesome",
+          "description": "😎 Awesome lists about all kinds of interesting topics",
+          "language": null,
+          "stars": 340000,
+          "topics": ["awesome-list", "curated"],
+          "avatarUrl": "https://avatars.githubusercontent.com/u/170270?v=4",
+          "summaryZh": "史上最全的精选列表合集，覆盖几乎所有技术主题。",
+          "summaryEn": "The most comprehensive curated list of awesome lists.",
+          "updatedAt": "2025-07-29T01:00:00Z"
+        }
+      ]
+    }
+  ]
+}
