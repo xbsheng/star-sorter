@@ -23,7 +23,7 @@ AI 策展的个人 star 索引：每日自动更新、零人工维护、双语�
 - 拉取仓库所有者本人的 star 列表（GITHUB_TOKEN 即可，无需额外 PAT）
 - DeepSeek API（OpenAI 兼容协议，模型 deepseek-chat），Key 存于仓库 Secrets（DEEPSEEK_API_KEY）
 - 仓库公开（GitHub Pages 免费版要求）
-- 数据以 JSON 形式提交进仓库（public/data/stars.json），Pages 构建时原样发布
+- 数据与构建产物发布到 `output` 分支（GitHub Pages 直接从此分支部署），主分支仅保留源码，数据更新不污染 commit 记录
 
 ## Capabilities and Constraints
 - 分类：AI 动态产出类别（类别名含中英文），不预设固定分类

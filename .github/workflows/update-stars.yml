@@ -18,20 +18,40 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run update script
+      - name: Generate data (GitHub API + AI)
         run: node .github/scripts/update-stars.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 
-      - name: Commit data
+      - uses: pnpm/action-setup@v4
+
+      - name: Build site
         run: |
-          if git diff --quiet -- public/data/stars.json; then
-            echo "No changes to commit"
-            exit 0
-          fi
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      # 构建产物（含 stars.json）发布到 output 分支，Pages 从此分支部署，主分支保持源码干净
+      - name: Publish to output branch
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/stars.json
-          git commit -m "chore: update star data ($(date -u +%Y-%m-%d))"
-          git push
+          rm -rf .output
+          git fetch origin output:output 2>/dev/null || true
+          if git rev-parse --verify refs/heads/output >/dev/null 2>&1; then
+            git worktree add .output output
+          else
+            git worktree add .output --detach
+            git -C .output checkout --orphan output
+          fi
+          git -C .output rm -rf . >/dev/null 2>&1 || true
+          cp -r dist/. .output/
+          touch .output/.nojekyll
+          git -C .output add -A
+          if git -C .output rev-parse --verify HEAD >/dev/null 2>&1 && git -C .output diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git -C .output commit -m "deploy: update star site"
+            git push origin output
+          fi
+          git worktree remove .output --force
