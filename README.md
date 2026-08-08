@@ -21,15 +21,15 @@ pnpm dev
 1. 仓库设为公开，推送代码
 2. Settings → Secrets → 添加 `DEEPSEEK_API_KEY`（AI 平台 API Key）
 3. （可选）Settings → Variables → 添加 `AI_MODEL` 覆盖默认模型（默认 `deepseek-v4-flash`）
-3. 运行 **Update stars** 工作流（或等首次定时触发），生成 `output` 分支
-4. Settings → Pages → Source 选择 **Deploy from a branch**，分支选 `output`，目录 `/ (root)`
-5. 之后每天自动更新，也可手动 **Run workflow** 立即更新
+4. 运行 **Update stars** 工作流（或等首次定时触发），生成 `output` 分支数据
+5. Settings → Pages → Source 选择 **GitHub Actions**
+6. 之后每天自动更新数据并重新部署，也可手动 **Run workflow** 立即更新
 
 ## 分支结构
 
 - `main`：仅源码，数据更新不会污染 commit 记录
-- `output`：构建产物（含 `stars.json`），GitHub Pages 直接从此分支部署
+- `output`：仅 `stars.json` 数据文件
 
 ## 数据
 
-`output` 分支中的 `data/stars.json` 由工作流自动生成（GitHub API 拉取 star → 对比上次数据，仅新增项目调用 AI 分类 + 双语简介 → 构建）。本地开发时 `main` 上内置少量示例数据，首次运行后自动替换为真实 Star。
+`output` 分支的 `stars.json` 由工作流自动生成（GitHub API 拉取 star → 对比上次数据，仅新增项目调用 AI 分类 + 双语简介）。部署时由 Actions 在构建前从 `output` 分支注入数据；本地开发用 `main` 上内置的少量示例数据。

@@ -23,7 +23,10 @@ jobs:
           rm -f /tmp/prev-stars.json
           git fetch origin output:output 2>/dev/null || true
           if git rev-parse --verify refs/heads/output >/dev/null 2>&1; then
-            git show output:data/stars.json > /tmp/prev-stars.json 2>/dev/null && echo "上次数据已加载（增量基线）" || echo "output 分支无历史数据"
+            git show output:stars.json > /tmp/prev-stars.json 2>/dev/null \
+              || git show output:data/stars.json > /tmp/prev-stars.json 2>/dev/null \
+              || true
+            [ -s /tmp/prev-stars.json ] && echo "上次数据已加载（增量基线）" || echo "output 分支无历史数据"
           fi
           node .github/scripts/update-stars.mjs
         env:
@@ -33,15 +36,8 @@ jobs:
           AI_MODEL: ${{ vars.AI_MODEL }}
           PREV_FILE: /tmp/prev-stars.json
 
-      - uses: pnpm/action-setup@v4
-
-      - name: Build site
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm build
-
-      # 构建产物（含 stars.json）发布到 output 分支，Pages 从此分支部署，主分支保持源码干净
-      - name: Publish to output branch
+      # 仅发布 stars.json 到 output 分支（主分支保持源码干净）
+      - name: Publish data to output branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -54,13 +50,13 @@ jobs:
             git -C .output checkout --orphan output
           fi
           git -C .output rm -rf . >/dev/null 2>&1 || true
-          cp -r dist/. .output/
-          touch .output/.nojekyll
+          mkdir -p .output
+          cp public/data/stars.json .output/stars.json
           git -C .output add -A
           if git -C .output rev-parse --verify HEAD >/dev/null 2>&1 && git -C .output diff --cached --quiet; then
             echo "No changes to publish"
           else
-            git -C .output commit -m "deploy: update star site"
+            git -C .output commit -m "data: update stars ($(date -u +%Y-%m-%d))"
             git push origin output
           fi
           git worktree remove .output --force
