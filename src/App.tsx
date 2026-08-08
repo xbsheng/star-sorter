@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Category, StarData } from './types'
 import { dict, formatDate, type Lang } from './i18n'
 import RepoCard from './components/RepoCard'
@@ -37,6 +37,23 @@ export default function App() {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
     localStorage.setItem(LANG_KEY, lang)
   }, [lang])
+
+  // 切换分类/搜索/排序时，右侧列表滚回顶部（吸顶工具带之下）
+  const interacted = useRef(false)
+  useEffect(() => {
+    if (!data) return
+    if (!interacted.current) {
+      interacted.current = true // 首次数据加载不自动滚动，保留 hero 首屏
+      return
+    }
+    const main = document.getElementById('top')
+    if (!main) return
+    const y = main.getBoundingClientRect().top + window.scrollY - 56
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // 搜索随输入即时反馈用瞬时滚动，分类/排序用平滑滚动
+    const behavior = query.length > 0 || reduced ? 'auto' : 'smooth'
+    window.scrollTo({ top: Math.max(0, y), behavior })
+  }, [activeCat, query, sortRecent, data])
 
   useEffect(() => {
     loadData()
