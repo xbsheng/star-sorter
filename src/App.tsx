@@ -136,98 +136,131 @@ export default function App() {
       </section>
 
       <main id="top" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <div className="sticky top-14 z-10 -mx-4 border-b border-neutral-200 bg-neutral-50/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <label className="relative flex-1 sm:max-w-sm">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                className="w-full rounded-md border border-neutral-300 bg-white py-2 pr-3 pl-9 text-sm placeholder:text-neutral-400 focus:border-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950/10"
+        <div className="flex flex-col gap-8 pt-8 md:flex-row md:items-start">
+          {/* 桌面端：左侧垂直分类列表（sticky） */}
+          <aside className="hidden w-52 shrink-0 md:sticky md:top-14 md:block">
+            <nav aria-label="Categories" className="flex flex-col gap-1">
+              <SidebarChip
+                active={activeCat === 'all'}
+                onClick={() => setActiveCat('all')}
+                label={t.all}
+                count={total}
               />
-            </label>
-            <div className="flex items-center gap-1 self-start sm:ml-auto">
-              <button
-                type="button"
-                onClick={() => setSortRecent(false)}
-                aria-pressed={!sortRecent}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                  !sortRecent
-                    ? 'bg-neutral-950 text-white'
-                    : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
-                }`}
-              >
-                {t.sortStars}
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortRecent(true)}
-                aria-pressed={sortRecent}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                  sortRecent
-                    ? 'bg-neutral-950 text-white'
-                    : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
-                }`}
-              >
-                {t.sortRecent}
-              </button>
-            </div>
-          </div>
-          <nav
-            aria-label="Categories"
-            className="mt-3 flex gap-1.5 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]"
-          >
-            <Chip
-              active={activeCat === 'all'}
-              onClick={() => setActiveCat('all')}
-              label={t.all}
-              count={total}
-            />
-            {data?.categories.map((c) => (
-              <Chip
-                key={c.nameZh}
-                active={activeCat === c.nameZh}
-                onClick={() => setActiveCat(c.nameZh)}
-                label={lang === 'zh' ? c.nameZh : c.nameEn}
-                count={c.repos.length}
-              />
-            ))}
-            {!data && !error && (
-              <div className="flex gap-1.5" aria-hidden="true">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <span key={i} className="h-7 w-16 animate-pulse rounded-full bg-neutral-200/70" />
-                ))}
-              </div>
-            )}
-          </nav>
-        </div>
+              {data?.categories.map((c) => (
+                <SidebarChip
+                  key={c.nameZh}
+                  active={activeCat === c.nameZh}
+                  onClick={() => setActiveCat(c.nameZh)}
+                  label={lang === 'zh' ? c.nameZh : c.nameEn}
+                  count={c.repos.length}
+                />
+              ))}
+              {!data && !error && (
+                <div className="flex flex-col gap-1" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className="h-8 animate-pulse rounded-md bg-neutral-200/70" />
+                  ))}
+                </div>
+              )}
+            </nav>
+          </aside>
 
-        {error ? (
-          <EmptyState
-            title={t.loadError}
-            hint={t.loadErrorHint}
-            onRetry={() => {
-              setError(false)
-              setData(null)
-              loadData()
-                .then(setData)
-                .catch(() => setError(true))
-            }}
-            retryLabel={t.retry}
-          />
-        ) : !data ? (
-          <LoadingGrid />
-        ) : visible.length === 0 ? (
-          <EmptyState title={t.noResults} hint={t.noResultsHint} />
-        ) : (
-          <div className="grid grid-cols-1 gap-4 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visible.map((r) => (
+          {/* 右侧：搜索/排序 + 卡片列表 */}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <label className="relative flex-1 sm:max-w-sm">
+                <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={t.searchPlaceholder}
+                  className="w-full rounded-md border border-neutral-300 bg-white py-2 pr-3 pl-9 text-sm placeholder:text-neutral-400 focus:border-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950/10"
+                />
+              </label>
+              <div className="flex items-center gap-1 self-start sm:ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setSortRecent(false)}
+                  aria-pressed={!sortRecent}
+                  className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                    !sortRecent
+                      ? 'bg-neutral-950 text-white'
+                      : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
+                  }`}
+                >
+                  {t.sortStars}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortRecent(true)}
+                  aria-pressed={sortRecent}
+                  className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                    sortRecent
+                      ? 'bg-neutral-950 text-white'
+                      : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
+                  }`}
+                >
+                  {t.sortRecent}
+                </button>
+              </div>
+            </div>
+
+            {/* 移动端：横向分类 chips */}
+            <nav
+              aria-label="Categories"
+              className="mt-3 flex gap-1.5 overflow-x-auto pb-1 md:hidden [-webkit-overflow-scrolling:touch]"
+            >
+              <Chip
+                active={activeCat === 'all'}
+                onClick={() => setActiveCat('all')}
+                label={t.all}
+                count={total}
+              />
+              {data?.categories.map((c) => (
+                <Chip
+                  key={c.nameZh}
+                  active={activeCat === c.nameZh}
+                  onClick={() => setActiveCat(c.nameZh)}
+                  label={lang === 'zh' ? c.nameZh : c.nameEn}
+                  count={c.repos.length}
+                />
+              ))}
+              {!data && !error && (
+                <div className="flex gap-1.5" aria-hidden="true">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <span key={i} className="h-7 w-16 animate-pulse rounded-full bg-neutral-200/70" />
+                  ))}
+                </div>
+              )}
+            </nav>
+
+            {error ? (
+              <EmptyState
+                title={t.loadError}
+                hint={t.loadErrorHint}
+                onRetry={() => {
+                  setError(false)
+                  setData(null)
+                  loadData()
+                    .then(setData)
+                    .catch(() => setError(true))
+                }}
+                retryLabel={t.retry}
+              />
+            ) : !data ? (
+              <LoadingGrid />
+            ) : visible.length === 0 ? (
+              <EmptyState title={t.noResults} hint={t.noResultsHint} />
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {visible.map((r) => (
               <RepoCard key={r.fullName} repo={r} lang={lang} />
             ))}
           </div>
-        )}
+          )}
+          </div>
+        </div>
       </main>
 
       <footer className="border-t border-neutral-200 bg-white">
@@ -257,10 +290,33 @@ interface ChipProps {
   count: number
 }
 
+/** 桌面端侧栏：垂直分类项 */
+function SidebarChip({ active, onClick, label, count }: ChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 ${
+        active
+          ? 'bg-neutral-950 font-medium text-white'
+          : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950'
+      }`}
+    >
+      <span className="truncate">{label}</span>
+      <span
+        className={`shrink-0 text-xs tabular-nums ${active ? 'text-neutral-400' : 'text-neutral-500'}`}
+      >
+        {count}
+      </span>
+    </button>
+  )
+}
+
 /** 加载骨架屏：复刻 RepoCard 结构 */
 function LoadingGrid() {
   return (
-    <div className="grid grid-cols-1 gap-4 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
@@ -269,7 +325,6 @@ function LoadingGrid() {
         >
           <div className="relative h-24 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100">
             <div className="absolute inset-0 m-auto h-12 w-12 rounded-full bg-neutral-200/70" />
-            <div className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-neutral-200/70" />
           </div>
           <div className="p-4">
             <div className="flex items-baseline justify-between gap-2">

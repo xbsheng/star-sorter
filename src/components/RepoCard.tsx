@@ -27,11 +27,6 @@ export default function RepoCard({ repo, lang }: Props) {
           loading="lazy"
           className="absolute inset-0 m-auto h-12 w-12 rounded-full border border-neutral-200 bg-white object-cover transition-transform duration-200 group-hover:scale-105"
         />
-        <span
-          className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full"
-          style={{ backgroundColor: languageColor(repo.language) }}
-          title={repo.language ?? ''}
-        />
       </div>
 
       <div className="flex flex-1 flex-col p-4">

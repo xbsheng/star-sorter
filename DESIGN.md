@@ -113,8 +113,8 @@ System sans stack (ui-sans-serif → PingFang SC / Hiragino / Microsoft YaHei fo
 - Max content width 1152px, px-4 on mobile / px-6 on desktop.
 - Sticky header (h-14, white 85% + backdrop-blur) with brand mark left, GitHub link and language toggle right.
 - Hero band: dark ink section, pt-14→20 / pb-12→16, headline + subline + one inline fact line (count · updated · AI note). No metric cards, no numbers grid.
-- Filter bar: sticky under the header (top-14), paper 90% + blur; search field (max-w-sm on desktop, full-width stacked on mobile), sort segmented control, then horizontally scrollable category chips.
-- Grid: 1 col mobile → 2 @sm → 3 @lg → 4 @xl, gap 16px. Cards equal height via flex column.
+- Filter area: desktop uses a sticky left sidebar (w-52, under the header) with the vertical category list; the right column carries the search field and sort toggle above the grid. On mobile the sidebar hides and categories become a horizontally scrollable chip row below the search.
+- Grid: 1 col mobile → 2 @sm → 3 @xl, gap 16px. Cards equal height via flex column.
 - Footer: centered two-line note on white, hairline top border.
 
 ## Elevation & Depth
@@ -127,13 +127,13 @@ System sans stack (ui-sans-serif → PingFang SC / Hiragino / Microsoft YaHei fo
 ## Shapes
 
 - Cards, inputs, buttons: 6–8px radius (lg). Chips: fully rounded pills.
-- Card preview pane: 96px tall, neutral-100→50 gradient, 48px circular avatar centered, language dot at top-right.
+- Card preview pane: 96px tall, neutral-100→50 gradient, 48px circular avatar centered.
 - Focus: 2px ink outline with 2px offset on all interactive elements; visible on keyboard focus only.
 
 ## Components
 
 - **RepoCard** (`src/components/RepoCard.tsx`): whole card is a GitHub link. Preview pane → title row (repo name, star count right) → AI summary (sparkle glyph + `line-clamp-2`, 14px) → original description (`line-clamp-1`, muted, only when it differs) → hairline-separated footer (language dot + name, short date right).
-- **Chip** (in `App.tsx`): pill, count badge inside, `aria-pressed`. Active = ink fill/white text; inactive = white fill/hairline border/muted text.
+- **SidebarChip** (in `App.tsx`): full-width row, label left + count right, `aria-pressed`. Active = ink fill/white text; inactive = muted text with hover tint.
 - **Sort toggle**: two-button segmented control, same active/inactive language as chips, `aria-pressed`.
 - **Search input**: search icon left, `type="search"`, wrapped in a `<label>`; ink border + 2px ink-tinted ring on focus.
 - **EmptyState**: icon-free centered title + hint, optional retry button (error case only).
