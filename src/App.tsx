@@ -7,6 +7,7 @@ import { GitHubIcon, GlobeIcon, SearchIcon, StarIcon } from './icons'
 // 数据来自 output 分支（raw.githubusercontent 允许跨域）；仓库改名时同步修改
 const DATA_URL = 'https://raw.githubusercontent.com/xbsheng/star-sorter/output/stars.json'
 const FALLBACK_URL = './data/stars.json' // 本地开发示例 / 远端不可用的降级
+const REPO_URL = 'https://github.com/xbsheng/star-sorter'
 const LANG_KEY = 'star-sorter-lang'
 
 async function loadData(): Promise<StarData> {
@@ -96,7 +97,7 @@ export default function App() {
           </a>
           <div className="flex items-center gap-1.5">
             <a
-              href="https://github.com"
+              href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
@@ -291,7 +292,7 @@ export default function App() {
           <p>
             {t.brand} ·{' '}
             <a
-              href="https://github.com"
+              href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950"
