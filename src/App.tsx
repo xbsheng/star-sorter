@@ -4,10 +4,9 @@ import { dict, formatDate, type Lang } from './i18n'
 import RepoCard from './components/RepoCard'
 import { GitHubIcon, GlobeIcon, SearchIcon, StarIcon } from './icons'
 
-// 运行时从 output 分支直接获取数据（raw.githubusercontent 允许跨域），数据更新即时生效，无需重新部署
-// 仓库改名或换所有者时同步修改此 URL
+// 数据来自 output 分支（raw.githubusercontent 允许跨域）；仓库改名时同步修改
 const DATA_URL = 'https://raw.githubusercontent.com/xbsheng/star-sorter/output/stars.json'
-const FALLBACK_URL = './data/stars.json' // 本地开发示例数据 / 远端不可用时的降级
+const FALLBACK_URL = './data/stars.json' // 本地开发示例 / 远端不可用的降级
 const LANG_KEY = 'star-sorter-lang'
 
 async function loadData(): Promise<StarData> {
@@ -16,7 +15,7 @@ async function loadData(): Promise<StarData> {
       const r = await fetch(url)
       if (r.ok) return (await r.json()) as StarData
     } catch {
-      /* 尝试下一个数据源 */
+      // 尝试下一个数据源
     }
   }
   throw new Error('数据加载失败')
@@ -38,20 +37,19 @@ export default function App() {
     localStorage.setItem(LANG_KEY, lang)
   }, [lang])
 
-  // 切换分类/搜索/排序时，右侧列表滚回顶部（吸顶工具带之下）
+  // 切换分类/搜索/排序后滚回列表顶部
   const interacted = useRef(false)
   useEffect(() => {
     if (!data) return
     if (!interacted.current) {
-      interacted.current = true // 首次数据加载不自动滚动，保留 hero 首屏
+      interacted.current = true // 首次加载不滚动，保留 hero 首屏
       return
     }
     const main = document.getElementById('top')
     if (!main) return
     const y = main.getBoundingClientRect().top + window.scrollY - 56
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // 搜索随输入即时反馈用瞬时滚动，分类/排序用平滑滚动
-    const behavior = query.length > 0 || reduced ? 'auto' : 'smooth'
+    const behavior = query.length > 0 || reduced ? 'auto' : 'smooth' // 搜索瞬时，分类/排序平滑
     window.scrollTo({ top: Math.max(0, y), behavior })
   }, [activeCat, query, sortRecent, data])
 
@@ -133,7 +131,9 @@ export default function App() {
               </>
             ) : (
               <>
-                <span className="font-medium text-white tabular-nums">{t.countLine(total, catCount)}</span>
+                <span className="font-medium text-white tabular-nums">
+                  {t.countLine(total, catCount)}
+                </span>
                 <span className="text-neutral-600">·</span>
                 <span>
                   {t.updatedAt} {data ? formatDate(data.generatedAt, lang) : '—'}
@@ -154,7 +154,7 @@ export default function App() {
 
       <main id="top" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col gap-8 pt-8 md:flex-row md:items-start md:gap-8">
-          {/* 桌面端：左侧垂直分类列表（吸顶 + 内部滚动） */}
+          {/* 桌面端侧栏 */}
           <aside className="sidebar-scroll hidden w-52 shrink-0 md:sticky md:top-14 md:block md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto md:overscroll-contain md:pr-1.5 md:pb-4">
             <nav aria-label="Categories" className="flex flex-col gap-1">
               <SidebarChip
@@ -182,76 +182,79 @@ export default function App() {
             </nav>
           </aside>
 
-          {/* 右侧：搜索/排序（吸顶）+ 卡片列表（随页面滚动） */}
+          {/* 主列表区 */}
           <div className="min-w-0 flex-1">
             <div className="sticky top-14 z-10 border-b border-neutral-200 bg-neutral-50/90 py-3 backdrop-blur-md">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <label className="relative flex-1 sm:max-w-sm">
-                <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={t.searchPlaceholder}
-                  className="w-full rounded-md border border-neutral-300 bg-white py-2 pr-3 pl-9 text-sm placeholder:text-neutral-400 focus:border-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950/10"
-                />
-              </label>
-              <div className="flex items-center gap-1 self-start sm:ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setSortRecent(false)}
-                  aria-pressed={!sortRecent}
-                  className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                    !sortRecent
-                      ? 'bg-neutral-950 text-white'
-                      : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
-                  }`}
-                >
-                  {t.sortStars}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSortRecent(true)}
-                  aria-pressed={sortRecent}
-                  className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                    sortRecent
-                      ? 'bg-neutral-950 text-white'
-                      : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
-                  }`}
-                >
-                  {t.sortRecent}
-                </button>
-              </div>
-            </div>
-
-            {/* 移动端：横向分类 chips */}
-            <nav
-              aria-label="Categories"
-              className="mt-3 flex gap-1.5 overflow-x-auto pb-1 md:hidden [-webkit-overflow-scrolling:touch]"
-            >
-              <Chip
-                active={activeCat === 'all'}
-                onClick={() => setActiveCat('all')}
-                label={t.all}
-                count={total}
-              />
-              {data?.categories.map((c) => (
-                <Chip
-                  key={c.nameZh}
-                  active={activeCat === c.nameZh}
-                  onClick={() => setActiveCat(c.nameZh)}
-                  label={lang === 'zh' ? c.nameZh : c.nameEn}
-                  count={c.repos.length}
-                />
-              ))}
-              {!data && !error && (
-                <div className="flex gap-1.5" aria-hidden="true">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <span key={i} className="h-7 w-16 animate-pulse rounded-full bg-neutral-200/70" />
-                  ))}
+                  <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t.searchPlaceholder}
+                    className="w-full rounded-md border border-neutral-300 bg-white py-2 pr-3 pl-9 text-sm placeholder:text-neutral-400 focus:border-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950/10"
+                  />
+                </label>
+                <div className="flex items-center gap-1 self-start sm:ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setSortRecent(false)}
+                    aria-pressed={!sortRecent}
+                    className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                      !sortRecent
+                        ? 'bg-neutral-950 text-white'
+                        : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
+                    }`}
+                  >
+                    {t.sortStars}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSortRecent(true)}
+                    aria-pressed={sortRecent}
+                    className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                      sortRecent
+                        ? 'bg-neutral-950 text-white'
+                        : 'text-neutral-600 hover:bg-neutral-200/70 hover:text-neutral-950'
+                    }`}
+                  >
+                    {t.sortRecent}
+                  </button>
                 </div>
-              )}
-            </nav>
+              </div>
+
+              {/* 移动端分类 chips */}
+              <nav
+                aria-label="Categories"
+                className="mt-3 flex gap-1.5 overflow-x-auto pb-1 md:hidden [-webkit-overflow-scrolling:touch]"
+              >
+                <Chip
+                  active={activeCat === 'all'}
+                  onClick={() => setActiveCat('all')}
+                  label={t.all}
+                  count={total}
+                />
+                {data?.categories.map((c) => (
+                  <Chip
+                    key={c.nameZh}
+                    active={activeCat === c.nameZh}
+                    onClick={() => setActiveCat(c.nameZh)}
+                    label={lang === 'zh' ? c.nameZh : c.nameEn}
+                    count={c.repos.length}
+                  />
+                ))}
+                {!data && !error && (
+                  <div className="flex gap-1.5" aria-hidden="true">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="h-7 w-16 animate-pulse rounded-full bg-neutral-200/70"
+                      />
+                    ))}
+                  </div>
+                )}
+              </nav>
             </div>
 
             {error ? (
@@ -274,10 +277,10 @@ export default function App() {
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {visible.map((r) => (
-              <RepoCard key={r.fullName} repo={r} lang={lang} />
-            ))}
-          </div>
-          )}
+                  <RepoCard key={r.fullName} repo={r} lang={lang} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -309,7 +312,7 @@ interface ChipProps {
   count: number
 }
 
-/** 桌面端侧栏：垂直分类项 */
+/** 桌面端侧栏分类项 */
 function SidebarChip({ active, onClick, label, count }: ChipProps) {
   return (
     <button
@@ -332,7 +335,7 @@ function SidebarChip({ active, onClick, label, count }: ChipProps) {
   )
 }
 
-/** 加载骨架屏：复刻 RepoCard 结构 */
+/** 骨架屏 */
 function LoadingGrid() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -387,20 +390,30 @@ function Chip({ active, onClick, label, count }: ChipProps) {
   )
 }
 
-function EmptyState({ title, hint, onRetry, retryLabel }: { title: string; hint: string; onRetry?: () => void; retryLabel?: string }) {
+function EmptyState({
+  title,
+  hint,
+  onRetry,
+  retryLabel,
+}: {
+  title: string
+  hint: string
+  onRetry?: () => void
+  retryLabel?: string
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-32 text-center">
       <p className="text-sm font-medium text-neutral-900">{title}</p>
       <p className="text-sm text-neutral-500">{hint}</p>
-          {onRetry && retryLabel && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="mt-3 rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-950 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950"
-            >
-              {retryLabel}
-            </button>
-          )}
+      {onRetry && retryLabel && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-3 rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-950 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950"
+        >
+          {retryLabel}
+        </button>
+      )}
     </div>
   )
 }

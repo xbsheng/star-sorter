@@ -10,7 +10,6 @@ export interface Repo {
   /** AI 生成的英文一句话简介 */
   summaryEn: string
   updatedAt: string
-  starredAt?: string
 }
 
 export interface Category {
@@ -29,8 +28,4 @@ export interface StarData {
 
 export function repoUrl(fullName: string): string {
   return `https://github.com/${fullName}`
-}
-
-export function repoName(fullName: string): string {
-  return fullName.split('/')[1] ?? fullName
 }

@@ -3,7 +3,6 @@ export type Lang = 'zh' | 'en'
 export const dict = {
   zh: {
     brand: 'Star Sorter',
-    siteName: '我的 GitHub Star 收藏',
     headline: '我的 GitHub Star 收藏',
     subline: '由 AI 每日自动分类整理的项目索引，中英双语简介。',
     countLine: (repos: number, cats: number) => `${repos} 个项目 · ${cats} 个分类`,
@@ -18,16 +17,13 @@ export const dict = {
     loadError: '数据加载失败',
     loadErrorHint: '请刷新重试，或稍后再来',
     retry: '重试',
-    loading: '加载中…',
     languageLabel: '切换语言',
     switchLang: 'EN',
-    viewOnGitHub: '在 GitHub 上查看',
     footerNote: '每日北京时间 05:00 由 GitHub Actions 自动更新',
     syntheticNote: '当前为示例数据，首次自动运行后由真实 Star 替换',
   },
   en: {
     brand: 'Star Sorter',
-    siteName: 'My GitHub Stars',
     headline: 'My GitHub Stars',
     subline: 'A curated index of starred projects, auto-categorized daily by AI with bilingual summaries.',
     countLine: (repos: number, cats: number) => `${repos} projects · ${cats} categories`,
@@ -42,16 +38,12 @@ export const dict = {
     loadError: 'Failed to load data',
     loadErrorHint: 'Refresh to try again',
     retry: 'Retry',
-    loading: 'Loading…',
     languageLabel: 'Switch language',
     switchLang: '中文',
-    viewOnGitHub: 'View on GitHub',
     footerNote: 'Auto-updated daily at 05:00 Beijing time via GitHub Actions',
     syntheticNote: 'Sample data — replaced by real stars after the first automated run',
   },
 } as const
-
-export type Dict = (typeof dict)['zh']
 
 export function formatStars(n: number, lang: Lang): string {
   const trim = (s: string) => s.replace(/\.0$/, '')
@@ -70,7 +62,7 @@ export function formatDate(iso: string, lang: Lang, short = false): string {
   }).format(d)
 }
 
-/** GitHub linguist 语言配色（缺省灰） */
+// GitHub linguist 语言配色，未收录语言用灰
 export const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: '#3178c6',
   JavaScript: '#f1e05a',
