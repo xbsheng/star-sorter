@@ -109,11 +109,20 @@ export default function App() {
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-neutral-400">{t.subline}</p>
           <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-300">
-            <span className="font-medium text-white tabular-nums">{t.countLine(total, catCount)}</span>
-            <span className="text-neutral-600">·</span>
-            <span>
-              {t.updatedAt} {data ? formatDate(data.generatedAt, lang) : '—'}
-            </span>
+            {!data && !error ? (
+              <>
+                <span className="h-4 w-44 animate-pulse rounded bg-neutral-800" aria-hidden="true" />
+                <span className="h-4 w-36 animate-pulse rounded bg-neutral-800" aria-hidden="true" />
+              </>
+            ) : (
+              <>
+                <span className="font-medium text-white tabular-nums">{t.countLine(total, catCount)}</span>
+                <span className="text-neutral-600">·</span>
+                <span>
+                  {t.updatedAt} {data ? formatDate(data.generatedAt, lang) : '—'}
+                </span>
+              </>
+            )}
             <span className="text-neutral-600">·</span>
             <span className="text-neutral-400">{t.aiNote}</span>
           </p>
@@ -185,6 +194,13 @@ export default function App() {
                 count={c.repos.length}
               />
             ))}
+            {!data && !error && (
+              <div className="flex gap-1.5" aria-hidden="true">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <span key={i} className="h-7 w-16 animate-pulse rounded-full bg-neutral-200/70" />
+                ))}
+              </div>
+            )}
           </nav>
         </div>
 
@@ -202,14 +218,7 @@ export default function App() {
             retryLabel={t.retry}
           />
         ) : !data ? (
-          <div className="grid grid-cols-1 gap-4 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-64 animate-pulse rounded-lg border border-neutral-200 bg-white"
-              />
-            ))}
-          </div>
+          <LoadingGrid />
         ) : visible.length === 0 ? (
           <EmptyState title={t.noResults} hint={t.noResultsHint} />
         ) : (
@@ -246,6 +255,42 @@ interface ChipProps {
   onClick: () => void
   label: string
   count: number
+}
+
+/** 加载骨架屏：复刻 RepoCard 结构 */
+function LoadingGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-4 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="animate-pulse overflow-hidden rounded-lg border border-neutral-200 bg-white"
+        >
+          <div className="relative h-24 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100">
+            <div className="absolute inset-0 m-auto h-12 w-12 rounded-full bg-neutral-200/70" />
+            <div className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-neutral-200/70" />
+          </div>
+          <div className="p-4">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="h-3.5 w-28 rounded bg-neutral-200/80" />
+              <div className="h-3 w-10 rounded bg-neutral-200/60" />
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="h-3 w-full rounded bg-neutral-100" />
+              <div className="h-3 w-3/4 rounded bg-neutral-100" />
+            </div>
+            <div className="mt-2.5 h-2.5 w-1/2 rounded bg-neutral-100" />
+            <div className="mt-4 flex items-center gap-1.5 border-t border-neutral-100 pt-3">
+              <div className="h-2 w-2 rounded-full bg-neutral-200/70" />
+              <div className="h-2.5 w-14 rounded bg-neutral-200/60" />
+              <div className="ml-auto h-2.5 w-12 rounded bg-neutral-200/60" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function Chip({ active, onClick, label, count }: ChipProps) {
